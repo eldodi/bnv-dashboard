@@ -1,0 +1,730 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>BNV · Dashboard de Proyectos en Vuelo</title>
+<meta property="og:title" content="BNV · Dashboard de Proyectos en Vuelo" />
+<meta property="og:description" content="Estado, hitos y próximos lanzamientos de los proyectos en vuelo de BrandNewVerse." />
+<style>
+  :root {
+    --red: #EC3558;
+    --red-deep: #CC1E3A;
+    --black: #111111;
+    --ink: #1a1a1a;
+    --paper: #FAFAFA;
+    --bone: #F4F4F4;
+    --line: #E5E5E5;
+    --muted: #6b6b6b;
+    --green: #1f9d55;
+    --amber: #d97706;
+    --ok-bg: #e8f5ee;
+    --warn-bg: #fdf3e3;
+    --live-bg: #ffe8ee;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Arial', 'Helvetica Neue', sans-serif;
+    font-size: 15px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .display, h1, h2, h3, .badge, .eyebrow {
+    font-family: 'Arial Black', 'Arial', sans-serif;
+    font-weight: 900;
+    letter-spacing: -0.01em;
+  }
+
+  /* ============= TOP RED BAR ============= */
+  .topbar {
+    background: var(--red);
+    height: 6px;
+    width: 100%;
+  }
+
+  /* ============= HEADER ============= */
+  header {
+    background: var(--black);
+    color: #fff;
+    padding: 36px 48px 30px;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: "";
+    position: absolute;
+    top: 0; bottom: 0; right: 0;
+    width: 110px;
+    background: var(--red);
+  }
+  .header-inner { position: relative; max-width: 1280px; margin: 0 auto; }
+  .brand {
+    display: inline-block;
+    background: var(--red);
+    color: #fff;
+    font-family: 'Arial Black', sans-serif;
+    font-size: 13px;
+    letter-spacing: 0.18em;
+    padding: 6px 12px;
+    margin-bottom: 18px;
+  }
+  h1 {
+    font-size: 44px;
+    line-height: 1.05;
+    text-transform: uppercase;
+  }
+  .header-meta {
+    display: flex;
+    gap: 32px;
+    margin-top: 16px;
+    color: #bdbdbd;
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .header-meta strong { color: #fff; font-family: 'Arial Black', sans-serif; }
+
+  /* ============= LAYOUT ============= */
+  main {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 40px 48px 80px;
+  }
+
+  .section-title {
+    display: flex;
+    align-items: baseline;
+    gap: 18px;
+    margin: 48px 0 22px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--black);
+  }
+  .section-title h2 {
+    font-size: 22px;
+    text-transform: uppercase;
+  }
+  .section-title .count {
+    font-family: 'Arial', sans-serif;
+    font-weight: 400;
+    color: var(--muted);
+    font-size: 13px;
+    letter-spacing: 0.1em;
+  }
+  .section-title:first-of-type { margin-top: 0; }
+
+  /* ============= PROJECT CARDS ============= */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 20px;
+  }
+  .card {
+    background: #fff;
+    border: 1px solid var(--line);
+    position: relative;
+    padding: 22px 22px 22px 30px;
+    overflow: hidden;
+    transition: transform .15s ease, box-shadow .15s ease;
+  }
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px -10px rgba(0,0,0,.15);
+  }
+  .card::before {
+    content: "";
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 6px;
+    background: var(--red);
+  }
+  .card .status-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+  .badge {
+    display: inline-block;
+    padding: 5px 10px;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #fff;
+  }
+  .badge.live   { background: var(--red); }
+  .badge.dev    { background: var(--black); }
+  .badge.ongoing{ background: #2e2e2e; }
+  .client-tag {
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-family: 'Arial Black', sans-serif;
+  }
+  .card h3 {
+    font-size: 19px;
+    line-height: 1.15;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+  }
+  .card .partner {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 16px;
+    letter-spacing: 0.04em;
+  }
+  .card .desc {
+    font-size: 13.5px;
+    color: #333;
+    line-height: 1.5;
+    margin-bottom: 18px;
+  }
+
+  /* Next milestone block */
+  .milestone {
+    background: var(--bone);
+    padding: 14px 16px;
+    border-left: 3px solid var(--red);
+    margin-bottom: 14px;
+  }
+  .milestone .label {
+    font-family: 'Arial Black', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 6px;
+  }
+  .milestone .date {
+    font-family: 'Arial Black', sans-serif;
+    font-size: 15px;
+    color: var(--black);
+  }
+  .milestone .desc-line {
+    font-size: 12.5px;
+    color: #444;
+    margin-top: 3px;
+  }
+  .countdown {
+    display: inline-block;
+    background: var(--black);
+    color: #fff;
+    font-family: 'Arial Black', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    padding: 4px 9px;
+    margin-top: 8px;
+    text-transform: uppercase;
+  }
+  .countdown.live { background: var(--red); }
+  .countdown.past { background: #888; }
+
+  /* Hito list inside card */
+  .hitos {
+    list-style: none;
+    margin-top: 4px;
+  }
+  .hitos li {
+    display: flex;
+    gap: 10px;
+    padding: 7px 0;
+    border-top: 1px solid var(--line);
+    font-size: 12.5px;
+  }
+  .hitos li:first-child { border-top: none; padding-top: 0; }
+  .hitos .h-date {
+    font-family: 'Arial Black', sans-serif;
+    color: var(--black);
+    min-width: 78px;
+    font-size: 11.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .hitos .h-text { color: #333; flex: 1; }
+  .hitos .h-text small {
+    display: block;
+    color: var(--muted);
+    font-size: 11px;
+    margin-top: 1px;
+  }
+
+  /* ============= TIMELINE ============= */
+  .timeline-section {
+    background: #fff;
+    border: 1px solid var(--line);
+    padding: 28px 30px;
+  }
+  .month {
+    display: grid;
+    grid-template-columns: 90px 1fr;
+    gap: 28px;
+    padding: 18px 0;
+    border-top: 1px solid var(--line);
+  }
+  .month:first-child { border-top: none; padding-top: 0; }
+  .month-label {
+    font-family: 'Arial Black', sans-serif;
+    font-size: 22px;
+    text-transform: uppercase;
+    line-height: 1;
+  }
+  .month-label small {
+    display: block;
+    font-family: 'Arial', sans-serif;
+    font-weight: 400;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    margin-top: 4px;
+  }
+  .events {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .event {
+    display: grid;
+    grid-template-columns: 70px 12px 1fr auto;
+    gap: 14px;
+    align-items: center;
+    padding: 10px 14px;
+    background: var(--bone);
+    border-left: 3px solid var(--red);
+  }
+  .event.major { background: #fff5f7; border-left-color: var(--red); }
+  .event.major .e-title { font-family: 'Arial Black', sans-serif; }
+  .event.minor { border-left-color: var(--black); }
+  .event .e-date {
+    font-family: 'Arial Black', sans-serif;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+  }
+  .event .e-dot {
+    width: 8px; height: 8px;
+    background: var(--red);
+    border-radius: 50%;
+  }
+  .event.minor .e-dot { background: var(--black); }
+  .event .e-title { font-size: 13.5px; }
+  .event .e-title small {
+    color: var(--muted);
+    font-size: 11.5px;
+    font-family: 'Arial', sans-serif;
+    font-weight: 400;
+  }
+  .event .e-project {
+    font-family: 'Arial Black', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: #fff;
+    border: 1px solid var(--line);
+    padding: 3px 8px;
+    color: var(--black);
+    white-space: nowrap;
+  }
+  .event.major .e-project { background: var(--red); color: #fff; border-color: var(--red); }
+
+  /* ============= UPDATES ============= */
+  .updates-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 18px;
+  }
+  .update {
+    background: #fff;
+    border: 1px solid var(--line);
+    padding: 20px 22px;
+  }
+  .update .u-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--line);
+  }
+  .update .u-project {
+    font-family: 'Arial Black', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--red);
+  }
+  .update .u-date {
+    font-family: 'Arial Black', sans-serif;
+    font-size: 12px;
+    color: var(--black);
+  }
+  .update h4 {
+    font-family: 'Arial Black', sans-serif;
+    font-size: 15px;
+    margin-bottom: 8px;
+  }
+  .update ul {
+    list-style: none;
+    font-size: 13px;
+    color: #333;
+  }
+  .update ul li {
+    padding-left: 14px;
+    position: relative;
+    padding-bottom: 5px;
+  }
+  .update ul li::before {
+    content: "";
+    width: 5px; height: 5px;
+    background: var(--red);
+    position: absolute;
+    left: 0; top: 9px;
+  }
+
+  /* ============= CLOSING ============= */
+  footer {
+    margin-top: 60px;
+    background: var(--black);
+    color: #888;
+    padding: 22px 48px;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  footer .footer-inner {
+    max-width: 1280px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  footer .red-pill {
+    background: var(--red);
+    color: #fff;
+    font-family: 'Arial Black', sans-serif;
+    padding: 4px 12px;
+    letter-spacing: 0.15em;
+  }
+
+  /* Responsive */
+  @media (max-width: 720px) {
+    header { padding: 28px 22px 24px; }
+    header::before { width: 60px; }
+    h1 { font-size: 28px; }
+    main { padding: 30px 22px 50px; }
+    .month { grid-template-columns: 1fr; gap: 8px; }
+    .event { grid-template-columns: 60px 8px 1fr; }
+    .event .e-project { grid-column: 1 / -1; justify-self: start; margin-top: 4px; }
+    .header-meta { flex-direction: column; gap: 6px; }
+    footer { padding: 18px 22px; }
+    footer .footer-inner { flex-direction: column; gap: 10px; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar"></div>
+
+<header>
+  <div class="header-inner">
+    <span class="brand">BNV · DASHBOARD</span>
+    <h1>Proyectos en Vuelo</h1>
+    <div class="header-meta">
+      <span><strong>5</strong> proyectos activos</span>
+      <span>Actualizado · <strong id="today"></strong></span>
+      <span>BrandNewVerse · <strong>Internal</strong></span>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- ============= PROJECTS ============= -->
+  <div class="section-title">
+    <h2>Proyectos</h2>
+    <span class="count">Estado actual · hitos clave</span>
+  </div>
+
+  <div class="grid">
+
+    <!-- BENIDORM -->
+    <article class="card">
+      <div class="status-row">
+        <span class="badge live">● Live</span>
+        <span class="client-tag">Visit Benidorm</span>
+      </div>
+      <h3>Benidorm Fun Town Tycoon</h3>
+      <div class="partner">Partner: Flecher · Cliente: Visit Benidorm</div>
+      <p class="desc">Tycoon en Roblox sobre un rascacielos que crece desde el corazón de Benidorm. Lanzado el 7 may. Temporada de drops semanales y campaña Roblox Ads en curso.</p>
+
+      <div class="milestone">
+        <div class="label">Próximo drop semanal</div>
+        <div class="date">Vie 29 may · 15:30 ES</div>
+        <div class="desc-line">Drop #3 · 1.500 unidades · Standard</div>
+        <span class="countdown" data-target="2026-05-29T13:30:00Z">—</span>
+      </div>
+
+      <ul class="hitos">
+        <li><span class="h-date">7 may</span><span class="h-text">🚀 Lanzamiento <small>Ya live · 15.000€ Roblox Ads · vídeo Lyna 15 may</small></span></li>
+        <li><span class="h-date">26 jun</span><span class="h-text">Drop Rare · Hogueras <small>800 unidades coincidiendo con San Juan</small></span></li>
+        <li><span class="h-date">31 jul</span><span class="h-text">Drop Final temporada <small>1.500 + 200 gold · pico estacional verano</small></span></li>
+      </ul>
+    </article>
+
+    <!-- TOTTO -->
+    <article class="card">
+      <div class="status-row">
+        <span class="badge dev">● En desarrollo</span>
+        <span class="client-tag">TOTTO · DeuSens</span>
+      </div>
+      <h3>TOTTO Super Camp</h3>
+      <div class="partner">Co-producción con DeuSens · Cliente: TOTTO</div>
+      <p class="desc">Experiencia multijugador de minijuegos estilo Mario Party. 5 biomas, 24 minijuegos, mecánica "tu mochila es tu power up". Fase 1 Back to School 2026.</p>
+
+      <div class="milestone">
+        <div class="label">Lanzamiento</div>
+        <div class="date">Lun 22 jun 2026</div>
+        <div class="desc-line">Back to School ES + MX · expansión LATAM en enero 2027</div>
+        <span class="countdown" data-target="2026-06-22T08:00:00Z">—</span>
+      </div>
+
+      <ul class="hitos">
+        <li><span class="h-date">2 mar</span><span class="h-text">Kick off proyecto <small>Arranque conjunto BNV + DeuSens</small></span></li>
+        <li><span class="h-date">30 mar</span><span class="h-text">Reunión GDD <small>Validación del Game Design Document</small></span></li>
+        <li><span class="h-date">22 jun</span><span class="h-text">🚀 Lanzamiento público <small>Back to School ES + MX</small></span></li>
+      </ul>
+    </article>
+
+    <!-- FIND THE SEASOULS -->
+    <article class="card">
+      <div class="status-row">
+        <span class="badge ongoing">● Live · contínuo</span>
+        <span class="client-tag">Promotur</span>
+      </div>
+      <h3>Find the Seasouls 2026</h3>
+      <div class="partner">Partner: Flecher · Cliente: Promotur Turismo de Canarias</div>
+      <p class="desc">Continuidad del juego de Promotur a lo largo de todo 2026. Calendario de eventos, efemérides y un lanzamiento mayor en julio (San Borondón).</p>
+
+      <div class="milestone">
+        <div class="label">Próximo update</div>
+        <div class="date">Vie 29 — Dom 31 may</div>
+        <div class="desc-line">🇮🇨 Día de Canarias · 16 Seasouls nuevos · UGC especial · 3.750€ Ads</div>
+        <span class="countdown" data-target="2026-05-29T08:00:00Z">—</span>
+      </div>
+
+      <ul class="hitos">
+        <li><span class="h-date">5–8 jun</span><span class="h-text">🌍 Semana Medioambiental <small>16 Seasouls + 2 UGCs · Día Medio Ambiente + Día Océanos</small></span></li>
+        <li><span class="h-date">20–30 jun</span><span class="h-text">☀️ Calentamiento Verano <small>Seasons legacy + warm-up San Borondón</small></span></li>
+        <li><span class="h-date">1–31 jul</span><span class="h-text">⭐ San Borondón <small>Lanzamiento mayor del año · isla mitológica · ~8.000€ influencers</small></span></li>
+        <li><span class="h-date">15 oct</span><span class="h-text">🎃 Halloween <small>Activación de 2 semanas</small></span></li>
+        <li><span class="h-date">1 dic</span><span class="h-text">🎄 Navidad <small>Calendario de adviento</small></span></li>
+      </ul>
+    </article>
+
+    <!-- LA PALMA -->
+    <article class="card">
+      <div class="status-row">
+        <span class="badge live">● Live</span>
+        <span class="client-tag">Turismo Canarias</span>
+      </div>
+      <h3>La Palma Star Island</h3>
+      <div class="partner">Cliente: Turismo de Canarias · La Palma</div>
+      <p class="desc">Réplica virtual de La Palma con narrativa de chapters astronómicos, telescopio y mecánica de búsqueda de estrellas. Lanzado el 29 abr.</p>
+
+      <div class="milestone">
+        <div class="label">Estado</div>
+        <div class="date">Cierre interno completado</div>
+        <div class="desc-line">19 may · reunión interna de cierre del proyecto</div>
+        <span class="countdown past">Lanzado · 29 abr</span>
+      </div>
+
+      <ul class="hitos">
+        <li><span class="h-date">29 abr</span><span class="h-text">🚀 Lanzamiento oficial <small>Star Island live en Roblox</small></span></li>
+        <li><span class="h-date">19 may</span><span class="h-text">Cierre interno BNV <small>Acta de cierre del proyecto</small></span></li>
+      </ul>
+    </article>
+
+    <!-- +1 SUPER HERO TRAINING -->
+    <article class="card">
+      <div class="status-row">
+        <span class="badge live">● Live</span>
+        <span class="client-tag">BNV Original IP</span>
+      </div>
+      <h3>+1 Super Hero Training</h3>
+      <div class="partner">Producción interna BrandNewVerse · Skydive Simulator (FLY)</div>
+      <p class="desc">Incremental simulator de wingsuit producido internamente. Truco visual sobre controles estándar de Roblox para ilusión de vuelo. Hueco de mercado sin competencia con tracción.</p>
+
+      <div class="milestone">
+        <div class="label">Estado</div>
+        <div class="date">Completo · iterando</div>
+        <div class="desc-line">Jugable desde 11 may · build completo cerrado entre 14 y 18 may</div>
+        <span class="countdown past">Live · 18 may</span>
+      </div>
+
+      <ul class="hitos">
+        <li><span class="h-date">6 may</span><span class="h-text">Arranque sprint <small>Kickoff producción interna</small></span></li>
+        <li><span class="h-date">11 may</span><span class="h-text">Jugable <small>Primera build jugable</small></span></li>
+        <li><span class="h-date">18 may</span><span class="h-text">Build completo <small>Cierre de versión 1.0</small></span></li>
+      </ul>
+    </article>
+
+  </div>
+
+  <!-- ============= TIMELINE ============= -->
+  <div class="section-title" style="margin-top:60px">
+    <h2>Calendario maestro</h2>
+    <span class="count">Mayo – Diciembre 2026</span>
+  </div>
+
+  <div class="timeline-section">
+
+    <div class="month">
+      <div class="month-label">May<small>2026</small></div>
+      <div class="events">
+        <div class="event minor"><span class="e-date">vie 22</span><span class="e-dot"></span><span class="e-title">Drop semanal #2 · 1.500 ud <small>Standard · 15:30 ES</small></span><span class="e-project">Benidorm</span></div>
+        <div class="event minor"><span class="e-date">vie 29</span><span class="e-dot"></span><span class="e-title">Drop semanal #3 · 1.500 ud <small>Standard · 15:30 ES</small></span><span class="e-project">Benidorm</span></div>
+        <div class="event major"><span class="e-date">29 – 31</span><span class="e-dot"></span><span class="e-title">🇮🇨 Día de Canarias <small>16 Seasouls · capa UGC · 3.750€ Roblox Ads</small></span><span class="e-project">FTS</span></div>
+      </div>
+    </div>
+
+    <div class="month">
+      <div class="month-label">Jun<small>2026</small></div>
+      <div class="events">
+        <div class="event major"><span class="e-date">5 – 8</span><span class="e-dot"></span><span class="e-title">🌍 Semana Medioambiental <small>Día Medio Ambiente (5) + Día Océanos (8) · 2 UGCs · 3.750€ Ads</small></span><span class="e-project">FTS</span></div>
+        <div class="event minor"><span class="e-date">vie 5</span><span class="e-dot"></span><span class="e-title">Drop semanal #4 · 1.500 ud <small>Standard</small></span><span class="e-project">Benidorm</span></div>
+        <div class="event minor"><span class="e-date">vie 12</span><span class="e-dot"></span><span class="e-title">Drop semanal #5 · 1.500 ud <small>Standard</small></span><span class="e-project">Benidorm</span></div>
+        <div class="event minor"><span class="e-date">vie 19</span><span class="e-dot"></span><span class="e-title">Drop semanal #6 · 1.500 ud <small>Standard</small></span><span class="e-project">Benidorm</span></div>
+        <div class="event major"><span class="e-date">lun 22</span><span class="e-dot"></span><span class="e-title">🚀 Lanzamiento TOTTO Super Camp <small>Back to School ES + MX</small></span><span class="e-project">TOTTO</span></div>
+        <div class="event minor"><span class="e-date">vie 26</span><span class="e-dot"></span><span class="e-title">Drop Rare #7 · Hogueras de San Juan <small>800 ud · Rare</small></span><span class="e-project">Benidorm</span></div>
+        <div class="event minor"><span class="e-date">20 – 30</span><span class="e-dot"></span><span class="e-title">☀️ Calentamiento Verano <small>Seasons legacy + warm-up San Borondón</small></span><span class="e-project">FTS</span></div>
+      </div>
+    </div>
+
+    <div class="month">
+      <div class="month-label">Jul<small>2026</small></div>
+      <div class="events">
+        <div class="event major"><span class="e-date">1 – 31</span><span class="e-dot"></span><span class="e-title">⭐ San Borondón · lanzamiento mayor del año <small>Isla mitológica · fauna extinta canaria · ~8.000€ influencers</small></span><span class="e-project">FTS</span></div>
+        <div class="event minor"><span class="e-date">vie 3</span><span class="e-dot"></span><span class="e-title">Drop semanal #8 · 1.500 ud</span><span class="e-project">Benidorm</span></div>
+        <div class="event minor"><span class="e-date">vie 10</span><span class="e-dot"></span><span class="e-title">Drop semanal #9 · 1.500 ud</span><span class="e-project">Benidorm</span></div>
+        <div class="event minor"><span class="e-date">vie 17</span><span class="e-dot"></span><span class="e-title">Drop semanal #10 · 1.500 ud</span><span class="e-project">Benidorm</span></div>
+        <div class="event minor"><span class="e-date">vie 24</span><span class="e-dot"></span><span class="e-title">Drop semanal #11 · 1.500 ud</span><span class="e-project">Benidorm</span></div>
+        <div class="event major"><span class="e-date">vie 31</span><span class="e-dot"></span><span class="e-title">Drop FINAL temporada Benidorm <small>1.500 ud + 200 gold · pico estacional verano</small></span><span class="e-project">Benidorm</span></div>
+      </div>
+    </div>
+
+    <div class="month">
+      <div class="month-label">Ago<small>2026</small></div>
+      <div class="events">
+        <div class="event minor"><span class="e-date">—</span><span class="e-dot"></span><span class="e-title">Buffer + vacaciones <small>Sin activaciones públicas</small></span><span class="e-project">FTS</span></div>
+      </div>
+    </div>
+
+    <div class="month">
+      <div class="month-label">Oct<small>2026</small></div>
+      <div class="events">
+        <div class="event major"><span class="e-date">15 oct – 1 nov</span><span class="e-dot"></span><span class="e-title">🎃 Halloween <small>Seasons + activación 2 semanas</small></span><span class="e-project">FTS</span></div>
+      </div>
+    </div>
+
+    <div class="month">
+      <div class="month-label">Dic<small>2026</small></div>
+      <div class="events">
+        <div class="event major"><span class="e-date">1 – 27</span><span class="e-dot"></span><span class="e-title">🎄 Navidad · calendario de adviento <small>Campaña + activación diaria</small></span><span class="e-project">FTS</span></div>
+        <div class="event minor"><span class="e-date">28 – 31</span><span class="e-dot"></span><span class="e-title">📋 Memoria del proyecto <small>Entregable cliente cierre de año</small></span><span class="e-project">FTS</span></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ============= UPDATES RECIENTES ============= -->
+  <div class="section-title" style="margin-top:60px">
+    <h2>Últimos updates</h2>
+    <span class="count">Cambios live recientes</span>
+  </div>
+
+  <div class="updates-grid">
+
+    <div class="update">
+      <div class="u-head">
+        <span class="u-project">Benidorm</span>
+        <span class="u-date">13 may 2026</span>
+      </div>
+      <h4>Quest semanal + vehículo</h4>
+      <ul>
+        <li>Integrada quest semanal de UGC</li>
+        <li>Integrado vehículo de la semana</li>
+      </ul>
+    </div>
+
+    <div class="update">
+      <div class="u-head">
+        <span class="u-project">Benidorm</span>
+        <span class="u-date">11 may 2026</span>
+      </div>
+      <h4>Fixes y mejoras de UX</h4>
+      <ul>
+        <li>Arreglado POI de Caletes</li>
+        <li>GUI para salir de la hamaca</li>
+        <li>Personaje animado en diálogos</li>
+        <li>Mensaje de Pedro Z tras 3 min sin quest</li>
+        <li>Conexión con Supabase</li>
+      </ul>
+    </div>
+
+    <div class="update">
+      <div class="u-head">
+        <span class="u-project">Benidorm</span>
+        <span class="u-date">8 may 2026</span>
+      </div>
+      <h4>Post-lanzamiento hotfix</h4>
+      <ul>
+        <li>Restaurado el salto mientras nadas</li>
+        <li>Añadidas paredes para no perderse con el helicóptero</li>
+        <li>Arreglado el trail de ayuda</li>
+        <li>Fix de respawn en agua y quest Punta del Cavall</li>
+      </ul>
+    </div>
+
+  </div>
+
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <span class="red-pill">BrandNewVerse</span>
+    <span>Dashboard interno · BNV © 2026</span>
+  </div>
+</footer>
+
+<script>
+  // Today
+  const today = new Date();
+  const fmt = today.toLocaleDateString('es-ES', { day:'numeric', month:'long', year:'numeric' });
+  document.getElementById('today').textContent = fmt;
+
+  // Countdowns
+  document.querySelectorAll('.countdown[data-target]').forEach(el => {
+    const target = new Date(el.dataset.target);
+    const now = new Date();
+    const diffMs = target - now;
+    const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+    if (diffDays < 0) {
+      el.classList.add('past');
+      el.textContent = 'Ya lanzado';
+    } else if (diffDays === 0) {
+      el.classList.add('live');
+      el.textContent = 'HOY';
+    } else if (diffDays === 1) {
+      el.classList.add('live');
+      el.textContent = 'Mañana';
+    } else {
+      el.textContent = `En ${diffDays} días`;
+    }
+  });
+</script>
+
+</body>
+</html>
