@@ -1,0 +1,790 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>BNV · Gantt · Próximos 3 meses</title>
+<meta property="og:title" content="BNV · Gantt · Próximos 3 meses" />
+<meta property="og:description" content="Hitos clave de los proyectos en vuelo. Mayo – Julio 2026." />
+<style>
+  :root {
+    --red: #EC3558;
+    --red-deep: #CC1E3A;
+    --black: #111111;
+    --ink: #1a1a1a;
+    --paper: #FAFAFA;
+    --bone: #F4F4F4;
+    --line: #E5E5E5;
+    --grid: #ECECEC;
+    --muted: #6b6b6b;
+    --today: #EC3558;
+
+    /* project colors */
+    --c-benidorm: #EC3558;
+    --c-totto:    #d97706;
+    --c-fts:      #1f9d55;
+    --c-lapalma:  #6b46c1;
+    --c-fly:      #111111;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Arial', 'Helvetica Neue', sans-serif;
+    font-size: 14px;
+    line-height: 1.4;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, .badge {
+    font-family: 'Arial Black', 'Arial', sans-serif;
+    font-weight: 900;
+    letter-spacing: -0.005em;
+  }
+
+  /* ============= TOP BAR ============= */
+  .topbar { background: var(--red); height: 6px; }
+
+  /* ============= HEADER ============= */
+  header {
+    background: var(--black);
+    color: #fff;
+    padding: 26px 36px 22px;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: "";
+    position: absolute;
+    top: 0; bottom: 0; right: 0;
+    width: 90px;
+    background: var(--red);
+  }
+  .header-inner { position: relative; max-width: 1280px; margin: 0 auto; }
+  .brand {
+    display: inline-block;
+    background: var(--red);
+    color: #fff;
+    font-family: 'Arial Black', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    padding: 5px 11px;
+    margin-bottom: 12px;
+  }
+  h1 {
+    font-size: 32px;
+    line-height: 1.05;
+    text-transform: uppercase;
+  }
+  .header-meta {
+    margin-top: 10px;
+    color: #bdbdbd;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .header-meta strong { color: #fff; font-family: 'Arial Black', sans-serif; }
+
+  /* ============= LEGEND ============= */
+  .legend {
+    max-width: 1280px;
+    margin: 18px auto 0;
+    padding: 0 36px;
+    display: flex;
+    gap: 22px;
+    align-items: center;
+    flex-wrap: wrap;
+    font-size: 12px;
+  }
+  .legend .leg-item { display: flex; align-items: center; gap: 7px; }
+  .legend .swatch {
+    width: 16px; height: 10px;
+    background: var(--red);
+    display: inline-block;
+  }
+  .legend .swatch.diamond {
+    width: 10px; height: 10px;
+    transform: rotate(45deg);
+    background: var(--black);
+  }
+  .legend .swatch.today-line {
+    width: 2px; height: 14px;
+    background: var(--red);
+  }
+  .legend span { color: var(--muted); letter-spacing: 0.04em; }
+
+  /* ============= GANTT ============= */
+  main {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 24px 36px 60px;
+  }
+
+  .gantt {
+    background: #fff;
+    border: 1px solid var(--line);
+    overflow: hidden;
+  }
+
+  /* months header */
+  .gantt-header {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    border-bottom: 2px solid var(--black);
+  }
+  .gantt-header .corner {
+    padding: 14px 16px;
+    background: var(--black);
+    color: #fff;
+    font-family: 'Arial Black', sans-serif;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    display: flex;
+    align-items: center;
+  }
+  .months {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    position: relative;
+  }
+  .month-cell {
+    padding: 12px 14px;
+    border-left: 1px solid var(--line);
+    font-family: 'Arial Black', sans-serif;
+    font-size: 14px;
+    text-transform: uppercase;
+    background: var(--bone);
+  }
+  .month-cell small {
+    display: block;
+    font-family: 'Arial', sans-serif;
+    font-weight: 400;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    margin-top: 2px;
+  }
+  .month-cell:first-child { border-left: none; }
+
+  /* Project rows */
+  .gantt-row {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    border-bottom: 1px solid var(--line);
+    min-height: 64px;
+  }
+  .gantt-row:last-child { border-bottom: none; }
+
+  .row-label {
+    padding: 14px 16px;
+    border-right: 2px solid var(--black);
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .row-label .proj-name {
+    font-family: 'Arial Black', sans-serif;
+    font-size: 12.5px;
+    line-height: 1.15;
+    text-transform: uppercase;
+    margin-bottom: 3px;
+  }
+  .row-label .proj-client {
+    font-size: 10.5px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .row-label .row-accent {
+    width: 28px;
+    height: 4px;
+    margin-top: 8px;
+    background: var(--red);
+  }
+
+  .row-track {
+    position: relative;
+    /* 92 days in window (1 may to 31 jul). Each column = month. Bars positioned in % */
+    background-image:
+      linear-gradient(to right, var(--grid) 1px, transparent 1px);
+    background-size: 33.333% 100%;
+    background-repeat: repeat-x;
+    background-position: 0 0;
+  }
+
+  /* horizontal bar */
+  .bar {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 18px;
+    background: var(--red);
+    border-radius: 2px;
+    padding: 0 8px;
+    color: #fff;
+    font-family: 'Arial Black', sans-serif;
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+    transition: transform .12s ease, box-shadow .12s ease;
+    z-index: 2;
+  }
+  .bar:hover {
+    transform: translateY(-50%) scale(1.03);
+    box-shadow: 0 4px 12px rgba(0,0,0,.2);
+    z-index: 5;
+  }
+  .bar.b-benidorm { background: var(--c-benidorm); }
+  .bar.b-totto    { background: var(--c-totto); }
+  .bar.b-fts      { background: var(--c-fts); }
+  .bar.b-lapalma  { background: var(--c-lapalma); }
+  .bar.b-fly      { background: var(--c-fly); }
+
+  /* diamond milestone */
+  .milestone {
+    position: absolute;
+    top: 50%;
+    width: 14px; height: 14px;
+    transform: translate(-50%, -50%) rotate(45deg);
+    background: var(--black);
+    border: 2px solid #fff;
+    box-shadow: 0 1px 4px rgba(0,0,0,.2);
+    cursor: pointer;
+    z-index: 3;
+    transition: transform .12s ease;
+  }
+  .milestone:hover {
+    transform: translate(-50%, -50%) rotate(45deg) scale(1.3);
+    z-index: 6;
+  }
+  .milestone.m-launch { background: var(--red); }
+  .milestone.m-major  { background: var(--black); }
+
+  .milestone-label {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -150%);
+    font-family: 'Arial Black', sans-serif;
+    font-size: 9.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--black);
+    white-space: nowrap;
+    pointer-events: none;
+  }
+  .milestone-label.m-launch-label { color: var(--red); }
+
+  /* today line */
+  .today-line {
+    position: absolute;
+    top: 0; bottom: 0;
+    width: 2px;
+    background: var(--today);
+    z-index: 4;
+    pointer-events: none;
+  }
+  .today-line::after {
+    content: "HOY";
+    position: absolute;
+    top: -22px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--today);
+    color: #fff;
+    font-family: 'Arial Black', sans-serif;
+    font-size: 9px;
+    padding: 2px 6px;
+    letter-spacing: 0.1em;
+    white-space: nowrap;
+  }
+
+  /* ============= TOOLTIP ============= */
+  .tooltip {
+    position: fixed;
+    background: var(--black);
+    color: #fff;
+    padding: 10px 14px;
+    font-size: 12px;
+    line-height: 1.4;
+    max-width: 280px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .15s ease;
+    z-index: 100;
+    box-shadow: 0 10px 30px -10px rgba(0,0,0,.4);
+  }
+  .tooltip.show { opacity: 1; }
+  .tooltip strong {
+    font-family: 'Arial Black', sans-serif;
+    display: block;
+    font-size: 12.5px;
+    color: var(--red);
+    margin-bottom: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .tooltip .tt-date {
+    font-family: 'Arial Black', sans-serif;
+    font-size: 11px;
+    margin-bottom: 6px;
+    color: #fff;
+  }
+  .tooltip .tt-desc {
+    color: #ccc;
+    font-size: 11.5px;
+  }
+
+  /* ============= UPCOMING LIST ============= */
+  .upcoming {
+    margin-top: 36px;
+    background: #fff;
+    border: 1px solid var(--line);
+    padding: 22px 28px;
+  }
+  .upcoming h2 {
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--black);
+    margin-bottom: 14px;
+  }
+  .upcoming ul { list-style: none; }
+  .upcoming li {
+    display: grid;
+    grid-template-columns: 100px 1fr auto;
+    gap: 14px;
+    align-items: center;
+    padding: 10px 0;
+    border-top: 1px solid var(--line);
+  }
+  .upcoming li:first-child { border-top: none; }
+  .upcoming .u-date {
+    font-family: 'Arial Black', sans-serif;
+    font-size: 11.5px;
+    text-transform: uppercase;
+    color: var(--black);
+  }
+  .upcoming .u-title { font-size: 13px; color: #333; }
+  .upcoming .u-title strong { font-family: 'Arial Black', sans-serif; }
+  .upcoming .u-project {
+    font-family: 'Arial Black', sans-serif;
+    font-size: 9.5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    color: #fff;
+    background: var(--red);
+    white-space: nowrap;
+  }
+  .upcoming .u-project.p-totto { background: var(--c-totto); }
+  .upcoming .u-project.p-fts { background: var(--c-fts); }
+  .upcoming .u-project.p-benidorm { background: var(--c-benidorm); }
+  .upcoming .u-countdown {
+    font-family: 'Arial Black', sans-serif;
+    font-size: 10.5px;
+    color: var(--muted);
+  }
+  .upcoming .u-countdown.urgent { color: var(--red); }
+
+  /* ============= FOOTER ============= */
+  footer {
+    margin-top: 40px;
+    background: var(--black);
+    color: #888;
+    padding: 18px 36px;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  footer .footer-inner {
+    max-width: 1280px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  footer .red-pill {
+    background: var(--red);
+    color: #fff;
+    font-family: 'Arial Black', sans-serif;
+    padding: 3px 10px;
+    letter-spacing: 0.15em;
+  }
+
+  /* ============= MOBILE ============= */
+  @media (max-width: 720px) {
+    header { padding: 22px 18px 18px; }
+    header::before { width: 48px; }
+    h1 { font-size: 22px; }
+    .legend { padding: 0 18px; gap: 14px; font-size: 11px; }
+    main { padding: 18px 12px 40px; }
+    .gantt-header { grid-template-columns: 110px 1fr; }
+    .gantt-row { grid-template-columns: 110px 1fr; min-height: 56px; }
+    .row-label { padding: 10px 10px; }
+    .row-label .proj-name { font-size: 10.5px; }
+    .row-label .proj-client { font-size: 9px; }
+    .row-label .row-accent { width: 18px; }
+    .gantt-header .corner { padding: 10px; font-size: 9.5px; }
+    .month-cell { padding: 8px 8px; font-size: 11.5px; }
+    .month-cell small { font-size: 9.5px; }
+    .bar { font-size: 9px; height: 14px; padding: 0 5px; }
+    .milestone { width: 11px; height: 11px; }
+    .milestone-label { font-size: 8px; }
+    .upcoming { padding: 16px 14px; }
+    .upcoming li { grid-template-columns: 70px 1fr; gap: 8px; }
+    .upcoming .u-project { grid-column: 2; justify-self: start; margin-top: 2px; }
+    .upcoming .u-countdown { grid-column: 1 / -1; margin-top: 2px; }
+    footer { padding: 14px 18px; }
+    footer .footer-inner { flex-direction: column; gap: 8px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar"></div>
+
+<header>
+  <div class="header-inner">
+    <span class="brand">BNV · GANTT</span>
+    <h1>Próximos 3 meses</h1>
+    <div class="header-meta">Mayo · Junio · Julio 2026 · <strong id="today"></strong></div>
+  </div>
+</header>
+
+<div class="legend">
+  <div class="leg-item"><span class="swatch"></span><span>Ventana de proyecto</span></div>
+  <div class="leg-item"><span class="swatch diamond" style="background:var(--red)"></span><span>Lanzamiento</span></div>
+  <div class="leg-item"><span class="swatch diamond"></span><span>Update / hito mayor</span></div>
+  <div class="leg-item"><span class="swatch today-line"></span><span>Día de hoy</span></div>
+</div>
+
+<main>
+
+  <div class="gantt" id="gantt">
+
+    <!-- HEADER -->
+    <div class="gantt-header">
+      <div class="corner">Proyecto</div>
+      <div class="months">
+        <div class="month-cell">Mayo<small>2026</small></div>
+        <div class="month-cell">Junio<small>2026</small></div>
+        <div class="month-cell">Julio<small>2026</small></div>
+      </div>
+    </div>
+
+    <!-- ROWS -->
+    <!-- Window: May 1 (day 0) → Jul 31 (day 91). Total 92 days. -->
+    <!-- Helper: % = (day_offset / 92) * 100 -->
+
+    <!-- BENIDORM -->
+    <div class="gantt-row" data-project="benidorm">
+      <div class="row-label">
+        <div class="proj-name">Benidorm Fun Town</div>
+        <div class="proj-client">Visit Benidorm</div>
+        <div class="row-accent" style="background:var(--c-benidorm)"></div>
+      </div>
+      <div class="row-track">
+        <!-- Temporada de drops: 7 may (d6) → 31 jul (d91). 6/92=6.5%, 85 días/92=92.4% -->
+        <div class="bar b-benidorm"
+             style="left: 6.5%; width: 92.4%;"
+             data-title="Temporada Roblox Ads + drops"
+             data-date="7 may – 31 jul"
+             data-desc="Live · 13 drops semanales viernes 15:30 ES · 15.000€ Roblox Ads">
+          Temporada drops
+        </div>
+        <!-- Milestones: 7 may launch (d6), 26 jun drop rare (d56), 31 jul final (d91) -->
+        <div class="milestone m-launch"
+             style="left: 6.5%;"
+             data-title="🚀 Lanzamiento"
+             data-date="Jue 7 may"
+             data-desc="Salida live de Benidorm Fun Town Tycoon"></div>
+
+        <div class="milestone m-major"
+             style="left: 60.9%;"
+             data-title="Drop Rare · Hogueras"
+             data-date="Vie 26 jun"
+             data-desc="800 unidades Rare coincidiendo con Hogueras de San Juan">
+          <div class="milestone-label" style="transform: translate(-50%, -180%) rotate(-45deg);">Hogueras</div>
+        </div>
+
+        <div class="milestone m-major"
+             style="left: 98.9%;"
+             data-title="Drop Final temporada"
+             data-date="Vie 31 jul"
+             data-desc="1.500 + 200 gold · cierre temporada · pico estacional verano"></div>
+      </div>
+    </div>
+
+    <!-- TOTTO -->
+    <div class="gantt-row" data-project="totto">
+      <div class="row-label">
+        <div class="proj-name">TOTTO Super Camp</div>
+        <div class="proj-client">TOTTO · DeuSens</div>
+        <div class="row-accent" style="background:var(--c-totto)"></div>
+      </div>
+      <div class="row-track">
+        <!-- Desarrollo: 1 may (d0) → 22 jun (d52). 0%, 56.5% -->
+        <div class="bar b-totto"
+             style="left: 0%; width: 56.5%;"
+             data-title="Desarrollo final + QA"
+             data-date="May – 22 jun"
+             data-desc="Cierre de minijuegos, biomas y pulido para Back to School">
+          Desarrollo final
+        </div>
+        <!-- Milestone: 22 jun launch -->
+        <div class="milestone m-launch"
+             style="left: 56.5%;"
+             data-title="🚀 Lanzamiento TOTTO"
+             data-date="Lun 22 jun"
+             data-desc="Back to School ES + MX · 5 biomas · 24 minijuegos">
+          <div class="milestone-label m-launch-label" style="transform: translate(-50%, -180%) rotate(-45deg);">Lanzamiento</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FIND THE SEASOULS -->
+    <div class="gantt-row" data-project="fts">
+      <div class="row-label">
+        <div class="proj-name">Find the Seasouls</div>
+        <div class="proj-client">Promotur</div>
+        <div class="row-accent" style="background:var(--c-fts)"></div>
+      </div>
+      <div class="row-track">
+        <!-- Live continuo, toda la ventana -->
+        <div class="bar b-fts"
+             style="left: 0%; width: 100%;"
+             data-title="Live continuo 2026"
+             data-date="Todo el año"
+             data-desc="Calendario de efemérides y updates a lo largo de 2026">
+          Live · activaciones temáticas
+        </div>
+        <!-- Milestones FTS: 29 may (d28), 5 jun (d35), 1 jul (d61) -->
+        <div class="milestone m-major"
+             style="left: 30.4%;"
+             data-title="🇮🇨 Día de Canarias"
+             data-date="29 – 31 may"
+             data-desc="16 Seasouls nuevos · UGC especial · 3.750€ Ads">
+          <div class="milestone-label" style="transform: translate(-50%, -180%) rotate(-45deg);">Canarias</div>
+        </div>
+
+        <div class="milestone m-major"
+             style="left: 38%;"
+             data-title="🌍 Semana Medioambiental"
+             data-date="5 – 8 jun"
+             data-desc="Día Medio Ambiente + Día Océanos · 16 Seasouls + 2 UGCs"></div>
+
+        <div class="milestone m-launch"
+             style="left: 66.3%;"
+             data-title="⭐ San Borondón"
+             data-date="1 – 31 jul"
+             data-desc="Lanzamiento mayor del año · isla mitológica · ~8.000€ influencers">
+          <div class="milestone-label m-launch-label" style="transform: translate(-50%, -180%) rotate(-45deg);">San Borondón</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LA PALMA -->
+    <div class="gantt-row" data-project="lapalma">
+      <div class="row-label">
+        <div class="proj-name">La Palma Star Island</div>
+        <div class="proj-client">Turismo Canarias</div>
+        <div class="row-accent" style="background:var(--c-lapalma)"></div>
+      </div>
+      <div class="row-track">
+        <!-- Lanzado 29 abr (antes de la ventana). Cierre interno 19 may (d18). 19.6% -->
+        <!-- Barra desde inicio hasta 19 may: 0 → 19.6% -->
+        <div class="bar b-lapalma"
+             style="left: 0%; width: 19.6%;"
+             data-title="Post-lanzamiento + cierre"
+             data-date="May · cierre 19 may"
+             data-desc="Live desde 29 abr · cierre interno BNV 19 may">
+          Cierre
+        </div>
+        <div class="milestone m-major"
+             style="left: 19.6%;"
+             data-title="Cierre interno BNV"
+             data-date="Lun 19 may"
+             data-desc="Acta de cierre del proyecto"></div>
+      </div>
+    </div>
+
+    <!-- +1 SUPER HERO -->
+    <div class="gantt-row" data-project="fly">
+      <div class="row-label">
+        <div class="proj-name">+1 Super Hero / FLY</div>
+        <div class="proj-client">BNV Original</div>
+        <div class="row-accent" style="background:var(--c-fly)"></div>
+      </div>
+      <div class="row-track">
+        <!-- Ventana: 6 may (d5) → 18 may (d17). 5.4% → 18.5% -->
+        <div class="bar b-fly"
+             style="left: 5.4%; width: 13.1%;"
+             data-title="Sprint producción interna"
+             data-date="6 – 18 may"
+             data-desc="Skydive Simulator · jugable 11 may · build cerrado 18 may">
+          Sprint v1.0
+        </div>
+        <div class="milestone m-launch"
+             style="left: 18.5%;"
+             data-title="Build cerrado v1.0"
+             data-date="Lun 18 may"
+             data-desc="Versión 1.0 lista · iterando live"></div>
+      </div>
+    </div>
+
+    <!-- TODAY LINE injected via JS -->
+  </div>
+
+  <!-- ============= UPCOMING ============= -->
+  <div class="upcoming">
+    <h2>Próximos hitos</h2>
+    <ul id="upcoming-list">
+      <!-- populated by JS -->
+    </ul>
+  </div>
+
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <span class="red-pill">BrandNewVerse</span>
+    <span>Gantt · BNV © 2026</span>
+  </div>
+</footer>
+
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+  // =========================
+  // CONFIG: window = May 1 – Jul 31, 2026 (92 days)
+  // =========================
+  const WIN_START = new Date('2026-05-01T00:00:00');
+  const WIN_END   = new Date('2026-07-31T23:59:59');
+  const TOTAL_DAYS = 92;
+
+  // Today
+  const now = new Date();
+  const fmtToday = now.toLocaleDateString('es-ES', { day:'numeric', month:'long', year:'numeric' });
+  document.getElementById('today').textContent = fmtToday;
+
+  // =========================
+  // TODAY LINE
+  // =========================
+  function pctFromDate(d) {
+    const diffMs = d - WIN_START;
+    const days = diffMs / (1000 * 60 * 60 * 24);
+    return (days / TOTAL_DAYS) * 100;
+  }
+
+  const todayPct = pctFromDate(now);
+  if (todayPct >= 0 && todayPct <= 100) {
+    document.querySelectorAll('.row-track').forEach(track => {
+      const line = document.createElement('div');
+      line.className = 'today-line';
+      line.style.left = todayPct + '%';
+      track.appendChild(line);
+    });
+    // Add HOY label only to the first row to avoid clutter
+    const firstTrack = document.querySelector('.row-track');
+    const firstLine = firstTrack.querySelector('.today-line');
+    if (firstLine) firstLine.style.setProperty('top', '-2px');
+  }
+
+  // =========================
+  // TOOLTIP
+  // =========================
+  const tooltip = document.getElementById('tooltip');
+  function showTooltip(e, el) {
+    const title = el.dataset.title;
+    const date = el.dataset.date;
+    const desc = el.dataset.desc;
+    if (!title) return;
+    tooltip.innerHTML = `<strong>${title}</strong><div class="tt-date">${date || ''}</div><div class="tt-desc">${desc || ''}</div>`;
+    tooltip.classList.add('show');
+    moveTooltip(e);
+  }
+  function moveTooltip(e) {
+    const x = e.clientX + 14;
+    const y = e.clientY + 14;
+    const ttW = tooltip.offsetWidth;
+    const ttH = tooltip.offsetHeight;
+    const finalX = (x + ttW > window.innerWidth) ? e.clientX - ttW - 14 : x;
+    const finalY = (y + ttH > window.innerHeight) ? e.clientY - ttH - 14 : y;
+    tooltip.style.left = finalX + 'px';
+    tooltip.style.top = finalY + 'px';
+  }
+  function hideTooltip() { tooltip.classList.remove('show'); }
+
+  document.querySelectorAll('.bar, .milestone').forEach(el => {
+    el.addEventListener('mouseenter', e => showTooltip(e, el));
+    el.addEventListener('mousemove', moveTooltip);
+    el.addEventListener('mouseleave', hideTooltip);
+    // Touch support: tap toggles
+    el.addEventListener('click', e => {
+      e.stopPropagation();
+      if (tooltip.classList.contains('show')) {
+        hideTooltip();
+      } else {
+        showTooltip(e, el);
+      }
+    });
+  });
+  document.body.addEventListener('click', hideTooltip);
+
+  // =========================
+  // UPCOMING LIST (auto-sorted by date, only future)
+  // =========================
+  const upcomingItems = [
+    { date: '2026-05-29', label: '🇮🇨 Día de Canarias',                  project: 'FTS',       cls: 'p-fts' },
+    { date: '2026-06-05', label: '🌍 Semana Medioambiental',             project: 'FTS',       cls: 'p-fts' },
+    { date: '2026-06-22', label: '🚀 Lanzamiento TOTTO Super Camp',      project: 'TOTTO',     cls: 'p-totto' },
+    { date: '2026-06-26', label: 'Drop Rare · Hogueras de San Juan',     project: 'Benidorm',  cls: 'p-benidorm' },
+    { date: '2026-07-01', label: '⭐ San Borondón · lanzamiento mayor',  project: 'FTS',       cls: 'p-fts' },
+    { date: '2026-07-31', label: 'Drop Final · cierre temporada',        project: 'Benidorm',  cls: 'p-benidorm' },
+  ];
+
+  const ul = document.getElementById('upcoming-list');
+  const today0 = new Date(); today0.setHours(0,0,0,0);
+
+  const futureItems = upcomingItems
+    .map(it => ({ ...it, d: new Date(it.date + 'T00:00:00') }))
+    .filter(it => it.d >= today0)
+    .sort((a, b) => a.d - b.d);
+
+  if (futureItems.length === 0) {
+    ul.innerHTML = '<li><span class="u-date">—</span><span class="u-title" style="grid-column: span 2; color: var(--muted)">No hay hitos próximos en la ventana actual.</span></li>';
+  } else {
+    futureItems.forEach(it => {
+      const diffDays = Math.ceil((it.d - now) / (1000 * 60 * 60 * 24));
+      const dateLabel = it.d.toLocaleDateString('es-ES', { day:'numeric', month:'short' }).replace('.', '');
+      let countdown;
+      if (diffDays <= 0) countdown = 'HOY';
+      else if (diffDays === 1) countdown = 'mañana';
+      else countdown = 'en ' + diffDays + ' días';
+      const urgent = diffDays <= 7 ? 'urgent' : '';
+
+      const li = document.createElement('li');
+      li.innerHTML = `
+        <span class="u-date">${dateLabel}</span>
+        <span class="u-title">${it.label}</span>
+        <span class="u-project ${it.cls}">${it.project}</span>
+        <span class="u-countdown ${urgent}" style="grid-column: 1 / -1; margin-top: 2px;">${countdown}</span>
+      `;
+      ul.appendChild(li);
+    });
+  }
+</script>
+
+</body>
+</html>
